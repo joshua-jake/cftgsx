@@ -200,7 +200,31 @@ wrangler deploy
 
 # 8. 设置Webhook
 curl https://your-worker.your-subdomain.workers.dev/setWebhook
+
+# 或者使用npm脚本（更方便）
+npm run deploy          # 部署到默认环境
+npm run deploy:prod     # 部署到生产环境
+npm run dev             # 本地开发模式
+npm run webhook:set     # 设置Webhook（需要先修改URL）
+npm run status          # 检查服务状态
 ```
+
+#### 📋 可用的npm脚本命令
+
+项目包含多个便捷的npm脚本命令：
+
+| 命令 | 功能 | 说明 |
+|------|------|------|
+| `npm run deploy` | 部署到默认环境 | 等同于 `wrangler deploy` |
+| `npm run deploy:prod` | 部署到生产环境 | 使用production配置部署 |
+| `npm run deploy:dev` | 部署到开发环境 | 使用development配置部署 |
+| `npm run dev` | 本地开发模式 | 启动本地开发服务器 |
+| `npm run login` | 登录Cloudflare | 等同于 `wrangler auth login` |
+| `npm run kv:create` | 创建KV存储空间 | 创建生产环境KV |
+| `npm run kv:create:preview` | 创建预览KV空间 | 创建预览环境KV |
+| `npm run webhook:set` | 设置Webhook | 需要先修改URL |
+| `npm run status` | 检查服务状态 | 健康检查 |
+| `npm run bot:info` | 获取机器人信息 | 查看机器人详情 |
 
 </details>
 
@@ -449,6 +473,7 @@ Use this token to access the HTTP API:
 ```
 cftgsx/
 ├── 📄 worker.js                 # 主程序文件 (单文件部署)
+├── 📄 package.json              # 项目配置和脚本命令
 ├── 📄 wrangler.toml             # Cloudflare Workers配置文件
 ├── 📄 deploy-config.example.json # 部署配置示例文件
 ├── 📄 README.md                 # 项目说明文档
