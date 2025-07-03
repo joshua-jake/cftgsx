@@ -5,14 +5,74 @@
 // ADMIN_CHAT_ID: 管理员的Chat ID (可以通过发送消息给机器人获取)
 // WEBHOOK_SECRET: Webhook验证密钥 (可选，用于安全验证)
 // ENABLE_USER_TRACKING: 启用用户跟踪 (可选，需要绑定KV存储)
+// USER_ID_SECRET: 用户ID签名密钥 (建议设置，用于防止身份伪造攻击)
 
 // 无状态设计，不需要内存存储
 
-// 从消息中提取用户Chat ID的辅助函数
-function extractUserChatId(messageText) {
+// 生成用户ID的HMAC签名
+async function generateUserIdSignature(userId, secret) {
+  if (!secret) {
+    // 如果没有配置密钥，使用简单的哈希作为后备
+    const data = new TextEncoder().encode(`user:${userId}:fallback`)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16)
+  }
+  
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  )
+  
+  const data = new TextEncoder().encode(`user:${userId}`)
+  const signature = await crypto.subtle.sign('HMAC', key, data)
+  const signatureArray = Array.from(new Uint8Array(signature))
+  return signatureArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16)
+}
+
+// 验证用户ID签名
+async function verifyUserIdSignature(userId, signature, secret) {
+  const expectedSignature = await generateUserIdSignature(userId, secret)
+  return signature === expectedSignature
+}
+
+// 创建安全的用户标识符
+async function createSecureUserTag(userId, secret) {
+  const signature = await generateUserIdSignature(userId, secret)
+  return `[USER:${userId}:${signature}]`
+}
+
+// 从消息中安全提取用户Chat ID的辅助函数
+async function extractUserChatId(messageText, secret) {
   if (!messageText) return null
-  const match = messageText.match(/\[USER:(\d+)\]/)
-  return match ? match[1] : null
+  
+  // 新的安全格式：[USER:id:signature] 
+  const secureMatch = messageText.match(/\[USER:(\d+):([a-f0-9]{16})\]/)
+  if (secureMatch) {
+    const userId = secureMatch[1]
+    const signature = secureMatch[2]
+    
+    // 验证签名
+    const isValid = await verifyUserIdSignature(userId, signature, secret)
+    if (isValid) {
+      return userId
+    } else {
+      console.warn(`检测到无效的用户ID签名: ${userId}:${signature}`)
+      return null
+    }
+  }
+  
+  // 兼容旧格式（逐步淘汰，仅在没有新格式时使用）
+  const legacyMatch = messageText.match(/\[USER:(\d+)\](?![:\w])/)
+  if (legacyMatch && !secureMatch) {
+    console.warn(`使用了不安全的旧格式用户标识: ${legacyMatch[1]}`)
+    return legacyMatch[1]
+  }
+  
+  return null
 }
 
 // 解析群发命令的目标用户
@@ -241,14 +301,15 @@ async function handleUserMessage(message, env) {
     }
 
     // 创建包含用户信息的转发消息
+    const secureUserTag = await createSecureUserTag(userInfo.chatId, env.USER_ID_SECRET)
     let forwardResult
     if (message.text) {
       // 文本消息
-      const forwardText = `${userInfo.header}\n📝 *消息内容:*\n${message.text}\n\n\`[USER:${userInfo.chatId}]\``
+      const forwardText = `${userInfo.header}\n📝 *消息内容:*\n${message.text}\n\n\`${secureUserTag}\``
       forwardResult = await sendMessage(env.ADMIN_CHAT_ID, forwardText, env.BOT_TOKEN)
     } else {
       // 媒体消息
-      const caption = `${userInfo.header}\n${message.caption ? `📝 *说明:* ${message.caption}\n\n` : ''}\`[USER:${userInfo.chatId}]\``
+      const caption = `${userInfo.header}\n${message.caption ? `📝 *说明:* ${message.caption}\n\n` : ''}\`${secureUserTag}\``
       forwardResult = await copyMessage(env.ADMIN_CHAT_ID, userInfo.chatId, message.message_id, env.BOT_TOKEN, { caption })
     }
 
@@ -398,8 +459,9 @@ async function handleAdminMessage(message, env) {
     if (message.reply_to_message) {
       const repliedMessage = message.reply_to_message
       
-      // 检查是否是群发媒体命令
-      if (message.text && message.text.startsWith('/post') && !repliedMessage.text?.includes('[USER:')) {
+      // 检查是否是群发媒体命令（确保不是回复用户消息）
+      const hasUserTag = repliedMessage.text?.includes('[USER:') || repliedMessage.caption?.includes('[USER:')
+      if (message.text && message.text.startsWith('/post') && !hasUserTag) {
         const commandText = message.text.substring(5).trim()
         const { userIds, message: postMessage } = parsePostTargets(commandText)
         
@@ -430,7 +492,7 @@ async function handleAdminMessage(message, env) {
       }
       
       // 普通回复处理
-      const userChatId = extractUserChatId(repliedMessage.text || repliedMessage.caption)
+      const userChatId = await extractUserChatId(repliedMessage.text || repliedMessage.caption, env.USER_ID_SECRET)
 
       if (!userChatId) {
         await sendMessage(env.ADMIN_CHAT_ID, 

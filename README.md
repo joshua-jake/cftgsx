@@ -199,16 +199,30 @@ Use this token to access the HTTP API:
 
 3. **设置环境变量**
    
-   在Worker设置页面添加以下变量：
-   
-   | 变量名 | 值 | 必需 | 说明 |
-   |--------|-----|------|------|
-   | `BOT_TOKEN` | 你的Bot Token | ✅ | 从@BotFather获取 |
-   | `ADMIN_CHAT_ID` | 管理员Chat ID | ✅ | 管理员的Telegram ID |
-   | `WEBHOOK_SECRET` | 自定义密钥 | ❌ | Webhook安全验证 |
-   | `ENABLE_USER_TRACKING` | `true`/`false` | ❌ | **启用用户跟踪功能** |
+   在Worker设置页面添加以下环境变量：
 
-4. **设置Webhook**
+   | 变量名 | 说明 | 是否必需 | 示例值 |
+   |:------|:-----|:---------|:-------|
+   | `BOT_TOKEN` | Telegram Bot Token | ✅ | `1234567890:AAAA-BBBB...` |
+   | `ADMIN_CHAT_ID` | 管理员Chat ID | ✅ | `123456789` |
+   | `WEBHOOK_SECRET` | Webhook验证密钥 | ⚠️ 推荐 | `your-secret-key` |
+   | `ENABLE_USER_TRACKING` | 启用用户跟踪 | ❌ 可选 | `true` |
+   | `USER_ID_SECRET` | 用户ID签名密钥 | ⚠️ 推荐 | `your-security-key` |
+
+   > 🔐 **安全提示**: 
+   > - `USER_ID_SECRET` 用于防止用户身份伪造攻击，强烈建议设置
+   > - `WEBHOOK_SECRET` 用于验证Webhook请求来源
+   > - 密钥应使用随机生成的强密码
+
+4. **绑定KV存储** (可选，用于用户跟踪)
+   ```bash
+   # 如果需要用户跟踪功能
+   # 1. 在Cloudflare创建KV命名空间
+   # 2. 在Worker设置中绑定变量名: USER_STORAGE
+   # 3. 设置环境变量: ENABLE_USER_TRACKING=true
+   ```
+
+5. **设置Webhook**
    ```bash
    # 访问这个URL完成设置
    https://your-worker.your-subdomain.workers.dev/setWebhook
@@ -317,6 +331,54 @@ cftgsx/
 | `/setWebhook` | GET | 设置Telegram Webhook |
 | `/me` | GET | 获取机器人信息 |
 | `/` | GET | 健康检查 |
+
+## 🛡️ 安全说明
+
+### 🔐 身份验证安全
+
+本项目已实现**用户身份伪造防护**机制，确保消息转发的安全性：
+
+#### 🚨 安全风险（已修复）
+- **身份伪造攻击**: 恶意用户曾可通过在消息中插入 `[USER:其他用户ID]` 来伪造身份
+- **影响**: 管理员回复可能被错误发送给其他用户
+
+#### ✅ 安全措施
+1. **加密签名验证**
+   - 用户标识采用 `[USER:id:signature]` 格式
+   - 使用HMAC-SHA256生成不可伪造的签名
+   - 自动验证签名有效性
+
+2. **环境变量保护**
+   ```bash
+   USER_ID_SECRET=your-random-secret-key  # 签名密钥
+   WEBHOOK_SECRET=your-webhook-secret     # Webhook验证
+   ```
+
+3. **向后兼容**
+   - 支持旧格式标识符（仅在无新格式时使用）
+   - 自动迁移到安全格式
+   - 记录安全警告日志
+
+#### 🔧 安全配置建议
+
+1. **设置强密钥**
+   ```bash
+   # 生成随机密钥示例
+   openssl rand -hex 32  # 用于 USER_ID_SECRET
+   openssl rand -hex 16  # 用于 WEBHOOK_SECRET
+   ```
+
+2. **监控安全日志**
+   - 查看Cloudflare Workers日志
+   - 关注"检测到无效的用户ID签名"警告
+   - 监控"使用了不安全的旧格式"提示
+
+3. **最佳实践**
+   - 定期更换密钥
+   - 启用Webhook验证
+   - 限制管理员访问权限
+
+> ⚠️ **重要提醒**: 如果不设置 `USER_ID_SECRET`，系统将使用后备哈希机制，安全性相对较低。强烈建议配置此环境变量。
 
 ## 🧪 测试验证
 
@@ -515,7 +577,16 @@ Workers → 你的Worker → Logs 标签
 
 ## 📝 更新日志
 
-### v1.1.0 (Latest)
+### v1.1.1 (Latest) 
+- 🛡️ **重要安全修复**: 修复用户身份伪造漏洞
+- ✨ 新增加密签名验证机制 (HMAC-SHA256)
+- 🔧 新增 `USER_ID_SECRET` 环境变量
+- 🔒 用户标识格式升级为 `[USER:id:signature]`
+- 📝 向后兼容旧格式标识符，自动迁移
+- 📚 新增详细安全说明和配置指南
+- ⚡ 优化安全日志和警告提示
+
+### v1.1.0
 - ✨ **新增群发消息功能**
 - ✨ **新增用户跟踪管理**
 - ✨ **新增KV存储支持**
