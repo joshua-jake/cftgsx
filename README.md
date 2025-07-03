@@ -10,7 +10,7 @@
 
 **高性能、无状态、开箱即用的Telegram双向消息转发解决方案**
 
-[🚀 快速开始](#快速开始) • [📖 使用方法](#使用方法) • [🛠️ 部署步骤](#部署步骤) • [🤝 贡献指南](#贡献指南)
+[快速开始](#quick-start) • [使用方法](#usage) • [部署步骤](#deployment) • [贡献指南](#contributing)
 
 </div>
 
@@ -88,6 +88,7 @@ graph LR
 - 📱 **通知转发** - 将系统通知转发到个人聊天
 - 🤖 **Bot集成** - 作为其他系统的消息接口
 
+<a id="quick-start"></a>
 ## 🚀 快速开始
 
 ### 📋 前置要求
@@ -118,6 +119,7 @@ graph LR
 
 就是这么简单！🎉
 
+<a id="deployment"></a>
 ## 🛠️ 部署步骤
 
 ### 步骤1: 创建Telegram机器人
@@ -207,6 +209,7 @@ Use this token to access the HTTP API:
 - 用户发送消息会自动转发给管理员
 - 管理员回复转发的消息即可回复给用户
 
+<a id="usage"></a>
 ## 📖 使用方法
 
 ### 👤 用户端操作
@@ -364,6 +367,7 @@ Workers → 你的Worker → Logs 标签
 
 ---
 
+<a id="contributing"></a>
 ## 🤝 贡献指南
 
 欢迎提交Issue和Pull Request！
