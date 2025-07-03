@@ -1,4 +1,6 @@
-# 📱 cftgsx - Telegram 双向消息转发机器人
+# 📱 cftgsx - Cloudflare-Telegram 双向Bot
+
+## 🚀 高性能无状态双向消息转发解决方案
 
 <div align="center">
 
@@ -8,7 +10,7 @@
 ![MIT License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
 ![GitHub Stars](https://img.shields.io/github/stars/SCSHIRKER/cftgsx?style=for-the-badge&logo=github&color=yellow)
 
-**高性能、无状态、开箱即用的Telegram双向消息转发解决方案**
+**基于Cloudflare Workers的Telegram消息转发机器人**
 
 [快速开始](#quick-start) • [使用方法](#usage) • [部署步骤](#deployment) • [贡献指南](#contributing)
 
@@ -67,6 +69,7 @@ graph TB
 
 ### ⭐ 为什么选择这个项目？
 
+- 🚀 **一键部署** - 支持Deploy按钮和GitHub Actions自动部署
 - 🔥 **零成本部署** - 基于Cloudflare Workers免费额度
 - ⚡ **极速响应** - 后台处理，毫秒级响应
 - 🛡️ **高可靠性** - 完善错误处理，自动监控
@@ -112,13 +115,141 @@ graph TB
 <a id="quick-start"></a>
 ## 🚀 快速开始
 
+### 🚀 一键部署
+
+<div align="center">
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/SCSHIRKER/cftgsx)
+
+**[点击上方按钮一键部署到Cloudflare Workers](https://deploy.workers.cloudflare.com/?url=https://github.com/SCSHIRKER/cftgsx)**
+
+</div>
+
+> 🎯 **超简单部署**: 只需点击按钮，Fork仓库，配置环境变量即可完成部署！
+
+#### 🔥 一键部署步骤
+
+<details>
+<summary><strong>📱 点击展开一键部署详细说明</strong></summary>
+
+**第1步: 准备Telegram机器人**
+1. 向 [@BotFather](https://t.me/BotFather) 发送 `/newbot` 创建机器人
+2. 记录获得的 `Bot Token`
+3. 向 [@userinfobot](https://t.me/userinfobot) 发送消息获取你的 `Chat ID`
+
+**第2步: 一键部署**
+1. 点击上方 "Deploy to Cloudflare Workers" 按钮
+2. 授权Cloudflare访问你的GitHub账号
+3. Fork本仓库到你的GitHub账号
+4. 在Cloudflare Workers中创建新的应用
+
+**第3步: 配置环境变量**
+在Cloudflare Workers控制台中设置以下环境变量：
+```bash
+BOT_TOKEN=1234567890:AAAA-BBBBBBBBBBBBBBBBBBBBBBBBBB
+ADMIN_CHAT_ID=123456789
+WEBHOOK_SECRET=your-random-secret-key
+USER_ID_SECRET=your-user-id-secret-key
+ENABLE_USER_TRACKING=true
+```
+
+**第4步: 设置Webhook**
+访问: `https://your-app-name.your-subdomain.workers.dev/setWebhook`
+
+**第5步: 开始使用**
+向你的机器人发送消息测试功能！
+
+</details>
+
+#### 🛠️ 使用Wrangler CLI部署
+
+<details>
+<summary><strong>💻 点击展开CLI部署方法</strong></summary>
+
+**前置要求**: 
+- 安装 [Node.js](https://nodejs.org/) 
+- 拥有 [Cloudflare账号](https://dash.cloudflare.com/sign-up)
+
+**快速部署**:
+```bash
+# 1. 克隆仓库
+git clone https://github.com/SCSHIRKER/cftgsx.git
+cd cftgsx
+
+# 2. 安装Wrangler CLI
+npm install -g wrangler
+
+# 3. 登录Cloudflare
+wrangler auth login
+
+# 4. 配置wrangler.toml
+# 编辑wrangler.toml，取消KV存储注释（如需要）
+
+# 5. 创建KV存储（可选）
+wrangler kv:namespace create "USER_STORAGE"
+wrangler kv:namespace create "USER_STORAGE" --preview
+
+# 6. 设置环境变量
+wrangler secret put BOT_TOKEN
+wrangler secret put ADMIN_CHAT_ID
+wrangler secret put WEBHOOK_SECRET
+wrangler secret put USER_ID_SECRET
+
+# 7. 部署
+wrangler deploy
+
+# 8. 设置Webhook
+curl https://your-worker.your-subdomain.workers.dev/setWebhook
+```
+
+</details>
+
+#### 🤖 自动部署 (GitHub Actions)
+
+<details>
+<summary><strong>⚙️ 点击展开GitHub Actions自动部署配置</strong></summary>
+
+本项目已配置GitHub Actions，可在每次推送到`main`分支时自动部署到Cloudflare Workers。
+
+**配置步骤**:
+
+1. **Fork本仓库**到你的GitHub账号
+
+2. **获取Cloudflare API凭证**:
+   - 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
+   - 转到 "My Profile" → "API Tokens"
+   - 创建自定义Token，权限设置为：
+     - `Cloudflare Workers:Edit`
+     - `Account:Read`
+     - `Zone:Read`
+
+3. **配置GitHub Secrets**:
+   - 在你的仓库中，转到 "Settings" → "Secrets and variables" → "Actions"
+   - 添加以下Secrets：
+   ```
+   CLOUDFLARE_API_TOKEN=your-api-token
+   CLOUDFLARE_ACCOUNT_ID=your-account-id
+   ```
+
+4. **触发部署**:
+   - 推送代码到`main`分支自动触发部署
+   - 或在Actions标签页手动触发部署
+
+5. **查看部署状态**:
+   - 在仓库的"Actions"标签页查看部署进度
+   - 部署成功后即可使用你的Worker
+
+**注意**: 仍需要在Cloudflare Workers控制台手动配置环境变量。
+
+</details>
+
 ### 📋 前置要求
 
 - [Cloudflare账号](https://dash.cloudflare.com/sign-up) (免费)
 - [Telegram Bot Token](https://t.me/BotFather) 
 - 管理员的Telegram Chat ID
 
-### ⚡ 一键部署
+### ⚡ 手动部署
 
 1. **获取Bot Token**
    ```bash
@@ -318,9 +449,14 @@ Use this token to access the HTTP API:
 ```
 cftgsx/
 ├── 📄 worker.js                 # 主程序文件 (单文件部署)
+├── 📄 wrangler.toml             # Cloudflare Workers配置文件
+├── 📄 deploy-config.example.json # 部署配置示例文件
 ├── 📄 README.md                 # 项目说明文档
 ├── 📄 LICENSE                   # MIT开源协议
-└── 📄 .gitignore               # Git忽略文件
+├── 📄 .gitignore               # Git忽略文件
+└── 📁 .github/
+    └── 📁 workflows/
+        └── 📄 deploy.yml        # GitHub Actions自动部署
 ```
 
 ## 🔧 API端点

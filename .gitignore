@@ -37,7 +37,6 @@ Thumbs.db
 
 # Wrangler
 .wrangler/
-wrangler.toml
 
 # Temporary files
 *.tmp
