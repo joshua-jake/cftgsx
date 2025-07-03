@@ -5,14 +5,14 @@
   "main": "worker.js",
   "type": "module",
   "scripts": {
-    "deploy": "wrangler deploy",
-    "deploy:prod": "wrangler deploy --env production",
-    "deploy:dev": "wrangler deploy --env development",
-    "dev": "wrangler dev",
-    "login": "wrangler auth login",
-    "whoami": "wrangler auth whoami",
-    "kv:create": "wrangler kv:namespace create USER_STORAGE",
-    "kv:create:preview": "wrangler kv:namespace create USER_STORAGE --preview",
+    "deploy": "npx wrangler deploy",
+    "deploy:prod": "npx wrangler deploy --env production",
+    "deploy:dev": "npx wrangler deploy --env development", 
+    "dev": "npx wrangler dev",
+    "login": "npx wrangler auth login",
+    "whoami": "npx wrangler auth whoami",
+    "kv:create": "npx wrangler kv:namespace create USER_STORAGE",
+    "kv:create:preview": "npx wrangler kv:namespace create USER_STORAGE --preview",
     "webhook:set": "curl https://your-worker.your-subdomain.workers.dev/setWebhook",
     "status": "curl https://your-worker.your-subdomain.workers.dev/",
     "bot:info": "curl https://your-worker.your-subdomain.workers.dev/me"
@@ -41,6 +41,8 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
   "dependencies": {}
 } 
