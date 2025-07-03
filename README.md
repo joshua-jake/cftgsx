@@ -69,7 +69,7 @@ graph TB
 
 ### ⭐ 为什么选择这个项目？
 
-- 🚀 **一键部署** - 支持Deploy按钮和GitHub Actions自动部署
+- 🚀 **一键部署** - 支持Deploy按钮快速部署到Cloudflare Workers
 - 🔥 **零成本部署** - 基于Cloudflare Workers免费额度
 - ⚡ **极速响应** - 后台处理，毫秒级响应
 - 🛡️ **高可靠性** - 完善错误处理，自动监控
@@ -228,44 +228,7 @@ npm run status          # 检查服务状态
 
 </details>
 
-#### 🤖 自动部署 (GitHub Actions)
 
-<details>
-<summary><strong>⚙️ 点击展开GitHub Actions自动部署配置</strong></summary>
-
-本项目已配置GitHub Actions，可在每次推送到`main`分支时自动部署到Cloudflare Workers。
-
-**配置步骤**:
-
-1. **Fork本仓库**到你的GitHub账号
-
-2. **获取Cloudflare API凭证**:
-   - 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-   - 转到 "My Profile" → "API Tokens"
-   - 创建自定义Token，权限设置为：
-     - `Cloudflare Workers:Edit`
-     - `Account:Read`
-     - `Zone:Read`
-
-3. **配置GitHub Secrets**:
-   - 在你的仓库中，转到 "Settings" → "Secrets and variables" → "Actions"
-   - 添加以下Secrets：
-   ```
-   CLOUDFLARE_API_TOKEN=your-api-token
-   CLOUDFLARE_ACCOUNT_ID=your-account-id
-   ```
-
-4. **触发部署**:
-   - 推送代码到`main`分支自动触发部署
-   - 或在Actions标签页手动触发部署
-
-5. **查看部署状态**:
-   - 在仓库的"Actions"标签页查看部署进度
-   - 部署成功后即可使用你的Worker
-
-**注意**: 仍需要在Cloudflare Workers控制台手动配置环境变量。
-
-</details>
 
 ### 📋 前置要求
 
@@ -478,10 +441,7 @@ cftgsx/
 ├── 📄 deploy-config.example.json # 部署配置示例文件
 ├── 📄 README.md                 # 项目说明文档
 ├── 📄 LICENSE                   # MIT开源协议
-├── 📄 .gitignore               # Git忽略文件
-└── 📁 .github/
-    └── 📁 workflows/
-        └── 📄 deploy.yml        # GitHub Actions自动部署
+└── 📄 .gitignore               # Git忽略文件
 ```
 
 ## 🔧 API端点
