@@ -18,18 +18,35 @@
 
 <div align="center">
 
-### 🔄 消息转发流程
+### 🔄 完整功能流程
 
 ```mermaid
-graph LR
+graph TB
     A[👤 用户] -->|发送消息| B[🤖 机器人]
-    B -->|转发| C[👨‍💼 管理员]
-    C -->|回复| B
+    B -->|转发消息| C[👨‍💼 管理员]
+    B -->|自动记录用户| D[(KV存储)]
+    
+    C -->|回复消息| B
     B -->|转发回复| A
+    
+    C -->|/post 群发命令| E[群发处理器]
+    E -->|手动指定ID| F[解析用户列表]
+    E -->|/post all| D
+    D -->|返回用户列表| F
+    
+    F -->|批量发送| G[限速处理]
+    G -->|发送消息| H[📢 所有目标用户]
+    G -->|发送报告| C
+    
+    C -->|/users 命令| D
+    D -->|返回用户信息| C
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+    style H fill:#e0f2f1
 ```
 
 ### ✨ 功能特色
@@ -46,7 +63,7 @@ graph LR
 
 ## 🌟 项目亮点
 
-这是一个基于**Cloudflare Workers**的高性能Telegram双向消息转发机器人，采用无状态设计，支持用户消息转发给管理员，并允许管理员直接回复。
+这是一个基于**Cloudflare Workers**的高性能Telegram双向消息转发机器人，采用无状态设计，支持用户消息转发给管理员，管理员直接回复，以及**强大的群发消息功能**。
 
 ### ⭐ 为什么选择这个项目？
 
@@ -67,6 +84,8 @@ graph LR
 - ✅ 多媒体消息支持
 - ✅ 用户信息展示
 - ✅ 即时确认回复
+- ✅ **群发消息功能**
+- ✅ **用户跟踪管理**
 
 </td>
 <td width="50%">
@@ -76,6 +95,8 @@ graph LR
 - ✅ 后台异步处理
 - ✅ 完善错误监控
 - ✅ 安全验证机制
+- ✅ **可选KV存储支持**
+- ✅ **批量处理与限速**
 
 </td>
 </tr>
@@ -180,11 +201,12 @@ Use this token to access the HTTP API:
    
    在Worker设置页面添加以下变量：
    
-   | 变量名 | 值 | 必需 |
-   |--------|-----|------|
-   | `BOT_TOKEN` | 你的Bot Token | ✅ |
-   | `ADMIN_CHAT_ID` | 管理员Chat ID | ✅ |
-   | `WEBHOOK_SECRET` | 自定义密钥 | ❌ |
+   | 变量名 | 值 | 必需 | 说明 |
+   |--------|-----|------|------|
+   | `BOT_TOKEN` | 你的Bot Token | ✅ | 从@BotFather获取 |
+   | `ADMIN_CHAT_ID` | 管理员Chat ID | ✅ | 管理员的Telegram ID |
+   | `WEBHOOK_SECRET` | 自定义密钥 | ❌ | Webhook安全验证 |
+   | `ENABLE_USER_TRACKING` | `true`/`false` | ❌ | **启用用户跟踪功能** |
 
 4. **设置Webhook**
    ```bash
@@ -203,11 +225,43 @@ Use this token to access the HTTP API:
 
 </details>
 
+### 🗄️ 可选：配置KV存储（群发功能）
+
+<details>
+<summary>📦 点击展开KV存储配置步骤</summary>
+
+如需使用群发功能中的`/post all`命令，需要配置KV存储来跟踪用户：
+
+1. **创建KV存储空间**
+   - 在Cloudflare控制台进入 "Workers" → "KV"
+   - 点击 "Create a Namespace"
+   - 命名为 `USER_STORAGE`
+
+2. **绑定到Worker**
+   - 在Worker设置页面，找到 "Variables" 部分
+   - 点击 "Add binding"
+   - 类型选择 "KV Namespace"
+   - 变量名：`USER_STORAGE`
+   - KV namespace：选择刚创建的空间
+
+3. **启用用户跟踪**
+   - 添加环境变量：`ENABLE_USER_TRACKING` = `true`
+
+4. **验证配置**
+   ```bash
+   # 管理员发送命令验证
+   /users                    # 应显示"暂无用户记录"
+   /post all 测试消息        # 开始自动记录用户
+   ```
+
+</details>
+
 ### 🎉 完成！
 
 现在你的机器人已经可以正常工作了：
 - 用户发送消息会自动转发给管理员
 - 管理员回复转发的消息即可回复给用户
+- **管理员可使用`/post`命令进行消息群发**
 
 <a id="usage"></a>
 ## 📖 使用方法
@@ -226,7 +280,13 @@ Use this token to access the HTTP API:
 /start                    # 显示管理员控制面板
 /status                   # 查看机器人运行状态  
 /help                     # 获取帮助信息
+/users                    # 查看用户列表（需启用用户跟踪）
 回复转发的消息             # 直接回复给对应用户
+
+# 📢 群发功能
+/post all 消息内容        # 向所有用户群发（需启用用户跟踪）
+/post 123,456,789 消息内容 # 向指定用户群发
+回复媒体+/post命令        # 群发媒体消息
 ```
 
 ### 🤖 机器人命令
@@ -236,6 +296,8 @@ Use this token to access the HTTP API:
 | `/start` | 全部 | 显示欢迎信息或管理面板 |
 | `/status` | 管理员 | 查看机器人运行状态 |
 | `/help` | 管理员 | 显示详细帮助信息 |
+| `/post` | 管理员 | **群发消息功能** |
+| `/users` | 管理员 | **查看用户列表** |
 
 ## 📁 项目结构
 
@@ -285,6 +347,18 @@ cftgsx/
    
    管理员: /help
    期望: 显示帮助信息
+   ```
+
+4. **群发功能测试**（需配置KV存储）
+   ```bash
+   管理员: /users
+   期望: 显示用户列表或"暂无用户记录"
+   
+   管理员: /post 123456789 测试群发
+   期望: 指定用户收到广播消息
+   
+   管理员: /post all 全体通知
+   期望: 所有用户收到广播消息
    ```
 
 </details>
@@ -340,6 +414,38 @@ cftgsx/
 1. 确保回复的是转发消息，而非普通消息
 2. 检查转发消息是否包含 `[USER:xxxxx]` 标识
 3. 查看Worker日志确认回复发送状态
+
+</details>
+
+<details>
+<summary><strong>Q: /post all 命令提示需要启用用户跟踪？</strong></summary>
+
+**可能原因：**
+- ❌ 未设置 `ENABLE_USER_TRACKING=true`
+- ❌ 未配置KV存储绑定
+- ❌ KV存储绑定变量名错误
+
+**解决方案：**
+1. 确认环境变量 `ENABLE_USER_TRACKING` 设置为 `true`
+2. 检查KV存储绑定变量名为 `USER_STORAGE`
+3. 确认至少有一个用户与机器人交互过
+4. 查看Worker日志确认KV操作状态
+
+</details>
+
+<details>
+<summary><strong>Q: 群发消息部分失败？</strong></summary>
+
+**可能原因：**
+- ❌ 部分用户阻止了机器人
+- ❌ 用户ID无效或已删除账号
+- ❌ 触发Telegram API限制
+
+**解决方案：**
+1. 查看群发报告中的错误详情
+2. 群发会自动跳过无效用户，这是正常现象
+3. 系统已内置限速机制，避免API限制
+4. 如需群发大量用户，建议分批进行
 
 </details>
 
@@ -409,7 +515,16 @@ Workers → 你的Worker → Logs 标签
 
 ## 📝 更新日志
 
-### v1.0.0 (Latest)
+### v1.1.0 (Latest)
+- ✨ **新增群发消息功能**
+- ✨ **新增用户跟踪管理**
+- ✨ **新增KV存储支持**
+- 🔧 新增 `/post` 命令支持文本和媒体群发
+- 🔧 新增 `/users` 命令查看用户列表
+- ⚡ 优化批量处理和自动限速
+- 📚 完善文档和使用说明
+
+### v1.0.0
 - 🎉 首次发布
 - ✨ 双向消息转发功能
 - ⚡ 无状态高性能设计
