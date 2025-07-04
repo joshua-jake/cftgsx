@@ -32,6 +32,12 @@
       "description": "Enable user tracking for broadcast features",
       "example": "true",
       "required": false
+    },
+    "ENABLE_FORUM_MODE": {
+      "type": "plain",
+      "description": "启用论坛话题模式 (需要管理员聊天为论坛群组)",
+      "example": "true",
+      "required": false
     }
   },
   "kv_namespaces": {
@@ -45,7 +51,8 @@
     "2. 获取管理员的Chat ID", 
     "3. 在Cloudflare Workers中配置环境变量",
     "4. (可选) 创建KV存储空间用于用户跟踪",
-    "5. 访问 /setWebhook 端点设置webhook",
-    "6. 测试机器人功能"
+    "5. (可选) 如需论坛模式，将管理员聊天设为论坛群组并启用ENABLE_FORUM_MODE",
+    "6. 访问 /setWebhook 端点设置webhook",
+    "7. 测试机器人功能"
   ]
 } 

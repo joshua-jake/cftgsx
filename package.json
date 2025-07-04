@@ -1,6 +1,6 @@
 {
   "name": "cftgsx",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Cloudflare-Telegram 双向Bot - 基于Cloudflare Workers的高性能无状态双向消息转发解决方案",
   "main": "worker.js",
   "type": "module",

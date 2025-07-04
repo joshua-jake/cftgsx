@@ -16,6 +16,7 @@ name = "cftgsx-dev"
 # WEBHOOK_SECRET = "your_webhook_secret"
 # USER_ID_SECRET = "your_user_id_secret"
 # ENABLE_USER_TRACKING = "true"
+# ENABLE_FORUM_MODE = "true"  # 启用论坛话题模式（需要管理员聊天为论坛群组）
 
 # KV存储绑定（可选，用于用户跟踪功能）
 # [[kv_namespaces]]
